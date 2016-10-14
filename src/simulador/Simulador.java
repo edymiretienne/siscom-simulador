@@ -1,18 +1,10 @@
 package simulador;
 
 public class Simulador {
-	
-	String estimador; //Protocolos a serem rodados
-	int numInicialTags = 0; //Quantidade inicial de etiquetas
-	int passoIncremento = 0; //Passo de	incremento da quantidade de etiquetas
-	int maxTags = 0; //Quantidade máxima de etiquetas
-	int numRepeticoes = 0; //Número repetições para cada quantidade de etiquetas
-	int tamQuadroInicial = 0; //Tamanho do quadro inicial
-	boolean potDois = false; //Usar ou não tamanho de quadro limitado a uma potência de 2
-	
 	/*Variáveis para plotar o gráfico 
 	 * Tempo médio de Execução
 	 */
+	public static boolean debug = false;
 	public static int totalSlots = 0; //Total de Slots
 	public static int totalSlotsVazios = 0; //Total de Slots Vazios
 	public static int totalSlotsColisao = 0; //Total de Slots em colisão
@@ -21,20 +13,35 @@ public class Simulador {
 	public static void Simulacao(String estimador, int numIniTags, int passo, int maxTags, int numRep, int tamQuadro, boolean poten){
 		
 		Reader leitor = new Reader(tamQuadro, numIniTags, estimador);
-		System.out.println("...........Começando a simulação...........");
-		//for (int i = 0; i < numRep ; i++){
-//			leitor.Broadcast();
-	//}
+		if(debug) System.out.println("...........Começando a simulação...........");
 		leitor.Identify();
 		//Aqui, depois da execução, eu acho a média das variaveis baseado no num de repeticoes
-		System.out.println("Número total de slots utilizados - " + totalSlots);
-		System.out.println("Número total de slots vazios - " + totalSlotsVazios);
-		System.out.println("Número total de colisões - " + totalSlotsColisao);
-		System.out.println("Número total de comandos dados pelo leitor - " + comandos);
+		if(debug) System.out.println("Número total de slots utilizados - " + totalSlots);
+		if(debug) System.out.println("Número total de slots vazios - " + totalSlotsVazios);
+		if(debug) System.out.println("Número total de colisões - " + totalSlotsColisao);
+		if(debug) System.out.println("Número total de comandos dados pelo leitor - " + comandos);
 	}
 	
 	public static void main(String[] args) {
-		Simulador.Simulacao("Lower Bound", 5, 0, 0, 1, 4, false);
+		int[] lowerTotalVazios = new int[10];
+		
+		//PRIMEIRO GRÁFICO - TOTAL VAZIOS
+		for (int w = 0; w < 10; w++){ //Dez iterações aumentando de 100 em 100
+			for (int q = 0; q < 10; q++){
+				Simulador.Simulacao("Lower Bound",((w+1) * 5), 0, 0, 1, 50, false);
+			}
+			lowerTotalVazios[w] = totalSlotsVazios/10;
+			totalSlotsVazios = 0;
+		}
+		
+		double[] lowerTotalVaziosd = new double[10];
+		for (int i = 0; i < 10; i++){
+			lowerTotalVaziosd[i] = lowerTotalVazios[i];
+		}
+		
+		GeraGrafico graf = new GeraGrafico(lowerTotalVaziosd);
+		graf.Render();
+		
 	}
 
 }
