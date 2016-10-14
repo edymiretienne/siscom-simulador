@@ -31,15 +31,18 @@ public class Reader {
 	}
 	
 	private void CreateNewFrame(){ //Cria um novo Frame baseado no estimador sendo utilizado
+		System.out.println("...Criando novo quadro...");
 		switch (estimador) {
 			case "Schoute":
 				FrameSize = (int) (conflictedSlots * 2.39) ;
+				System.out.println("...Criando por Schoute, tamanho do frame = "+FrameSize+"...");
 				break;
 			case "ILCM-SbS":
 				//Implementar ILCM-SbS
 				break;
 			case "Lower Bound":
 				FrameSize = conflictedSlots * 2 ;
+				System.out.println("...Criando por Lower Bound, tamanho do frame = "+FrameSize+"...");
 				break;
 			default:
 				System.out.println("Informe um estimador válido.") ;
@@ -47,30 +50,46 @@ public class Reader {
 	}
 	
 	private void Broadcast() { //Simula o momento que o leitor faz a tentativa de leitura em seu range
+		System.out.println("...........Começando o Broadcast...........");
 		for (int i = 0; i < restantes; i++){ //Tags escolhem um slot para transmitir
 			Tags[i] = SlotChoose(); //Cada tag escolhe um slot
+			System.out.println("....Tag: "+i+" escolheu: "+Tags[i]+".....");
 		}
 		Simulador.comandos++;
+		System.out.println("...Somou 1 aos comandos, comandos = "+Simulador.comandos+"...........");
 	}
 	
 	private int SlotChoose(){ //Simula uma tag escolhendo um slot para transmitir
 		int slot = 0;
-		slot = rdmGenerator.nextInt(FrameSize); //Gera um random com range de 0 a tamanho do Frame
+		slot = rdmGenerator.nextInt(FrameSize);//Gera um random com range de 0 a tamanho do Frame
 		return slot;
 	}
 	
 	private void ReadBySlot(){ //O leitor fara a leitura slot por slot identificando Vazios, Conflito e Sucesso
 		int tagResponses = 0; //Quantidade de tags que tentaram transmitir naquele slot
+		System.out.println("...........Começando a ler por slot...........");
 		for (int i = 0; i < FrameSize; i++){ //Para um determinado slot
+			System.out.println("...No Slot "+i+"...");
 			for(int j = 0; j < restantes; j++){ //Quais tags querem ler aqui nesse slot
-				if (Tags[j] == i) tagResponses++; //Tags que tentaram falar naquele slot
+				System.out.println("...Tag "+j+" valor: "+Tags[j]+"...");
+				if (Tags[j] == i){
+					tagResponses++; //Tags que tentaram falar naquele slot
+					System.out.println("...Mais uma tag respondeu...");
+				}
 			}
 			if (tagResponses == 0){ //Nenhuma tag tentou falar nesse slot
 				emptySlots++;
+				System.out.println("...Mais um slot vazio, vazio = "+emptySlots+"...");
 			} else if (tagResponses == 1) {
 						sucessSlots++; //Apenas uma tag transmitiu nesse slot
-					} else conflictedSlots++; //Conflito gerado
+						System.out.println("...Mais um slot com sucesso, sucesso = "+sucessSlots+"...");
+					} else {
+						conflictedSlots++; //Conflito gerado
+						System.out.println("...Mais uma colisão, colisão = "+conflictedSlots+"...");
+					}
 			Simulador.comandos++;
+			System.out.println("...Somou 1 aos comandos, comandos = "+Simulador.comandos+"...........");
+			tagResponses = 0;
 		}
 	}
 	
@@ -80,10 +99,18 @@ public class Reader {
 		while (restantes > 0 ) {
 			Broadcast();
 			ReadBySlot();
+			System.out.println("...Restantes = "+restantes+"-sucessSlots = "+sucessSlots+"...");
 			restantes = restantes - sucessSlots;
+			System.out.println("...Restantes = "+restantes+"...");
+			System.out.println("...Total de Slots = "+Simulador.totalSlots+"+TamanhoFrame = "+FrameSize+"...");
 			Simulador.totalSlots = Simulador.totalSlots + FrameSize;
+			System.out.println("...Total de Slots = "+Simulador.totalSlots+"...");
+			System.out.println("...Total de Slots Colisão = "+Simulador.totalSlotsColisao+"+conflitos = "+conflictedSlots+"...");
 			Simulador.totalSlotsColisao = Simulador.totalSlotsColisao + conflictedSlots;
+			System.out.println("...Total de Slots Colisao= "+Simulador.totalSlotsColisao+"...");
+			System.out.println("...Total de Slots Vazios = "+Simulador.totalSlotsVazios+"+emptyslots = "+emptySlots+"...");
 			Simulador.totalSlotsVazios = Simulador.totalSlotsVazios + emptySlots;
+			System.out.println("...Total de Slots Vazios= "+Simulador.totalSlotsVazios+"...");
 			if (restantes > 0 ) {
 				CreateNewFrame();		
 			}
