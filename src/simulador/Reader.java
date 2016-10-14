@@ -3,9 +3,6 @@ import java.util.Random;
 /*
  * COMANDOS LEITOR:
  * somente comando de ajuste/reajuste de tamanho de quadro e de início de slot
- * 
- * 
- * 
  */
 public class Reader {
 
@@ -17,21 +14,8 @@ public class Reader {
 	private int emptySlots; //Numero de slots vazios numa tentativa de leitura
 	private int conflictedSlots; //Numero de slots onde houve conflito de tentativa de transmissao
 	private int sucessSlots; //Numero de slots onde apenas uma tag trasmitiu
-	private String estimador;
-	private int restantes;
-	/*
-	 * Total de Slots
-	 * Total de Slots Vazios
-	 * Total de Slots em colisão
-	 * Total de Comandos enviados pelo leitor para as etiquetas
-	 * Tempo médio de Execução
-	 */
-	public int totalSlots = 0;
-	public int totalEmpty = 0;
-	public int totalConflicted = 0;
-	public int totalSentCommands = 0;
-	public double avgTimeSpent = 0;
-	
+	private String estimador; //Estimador sendo usado para criar novo quadro
+	private int restantes; //Numero de tags restantes para identificar
 	
 	public Reader (int FrameSize, int TagsNumber, String estimador) {
 		this.FrameSize = FrameSize;
@@ -41,9 +25,9 @@ public class Reader {
 		rdmGenerator = new Random();
 		emptySlots = 0; //Numero de slots vazios numa tentativa de leitura
 		conflictedSlots = 0; //Numero de slots onde houve conflito de tentativa de transmissao
-		sucessSlots = 0;
+		sucessSlots = 0; 
 		this.estimador = estimador;
-		restantes = TagsNumber;
+		restantes = TagsNumber; //No começo, todas as tags ainda restam para serem identificadas
 	}
 	
 	private void CreateNewFrame(){ //Cria um novo Frame baseado no estimador sendo utilizado
@@ -90,7 +74,8 @@ public class Reader {
 		}
 	}
 	
-	public void Identify(){
+	public boolean Identify(){
+		boolean termino = false;
 		
 		while (restantes > 0 ) {
 			Broadcast();
@@ -100,16 +85,14 @@ public class Reader {
 			Simulador.totalSlotsColisao = Simulador.totalSlotsColisao + conflictedSlots;
 			Simulador.totalSlotsVazios = Simulador.totalSlotsVazios + emptySlots;
 			if (restantes > 0 ) {
-				
-				
-				//Agora vou criar o novo quadro e tentar ler de novo
-				//Então tenho que salvar os dados que preciso para o gráfico
-				
-				
+				CreateNewFrame();		
 			}
+			emptySlots = 0;
+			conflictedSlots = 0;
+			sucessSlots = 0;
 		}
-		
-		
+		termino = true;
+		return termino;
 	}
 	
 	
